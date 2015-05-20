@@ -2,8 +2,8 @@ close all;
 
 V_ds = 0.5; %V
 V_g_max = 1; %V
-V_G = 0:V_g_max / steps : V_g_max - V_g_max / steps;
 steps = 100;
+V_G = 0:V_g_max / steps : V_g_max - V_g_max / steps;
 T = 300;
 d_ox = 5;
 d_ch = 5;
