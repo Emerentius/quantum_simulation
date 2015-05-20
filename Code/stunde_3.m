@@ -18,7 +18,7 @@ phi = zeros(n_ges,1);
 
 E_min = 0; %E_barrier_max - 0.1;
 E_max = 0.01*t; %0.0005*e;
-energy_step = E_max/2000;
+energy_step = E_max/1000;
 eta = 1*energy_step;
 energies = E_min : energy_step : E_max;
 %E_f = 0.1;
