@@ -14,7 +14,7 @@ e = 1.6e-19;
 prefactor = 2e15/4.135; % 2e/h oder h_quer
 
 current = 0;
-for energy=energies
-    current = current + prefactor * energy_step * e * (fermi(energy-E_s - E_f, 300) - fermi(energy- E_d - E_f, T) );
+for E=energies
+    current = current + prefactor * energy_step * e * (fermi((E-E_s - E_f)*e, 300) - fermi((E- E_d - E_f)*e, T) );
 end
 current;

@@ -1,14 +1,15 @@
 clear all;
 close all;
 initialise_constants
-
-%% input parameters
+%m_e = 9.1e-31;
 m = 0.1*m_e;
+%nm = 1e-9;
+%e = 1.6e-19;
+
 l = 20*nm;
 a = 0.2*nm;
-%%
 
-
+%h_bar = 1.0546e-34;
 t = h_bar^2 / (2*m * a^2);
 E_1 = h_bar^2*pi^2 / m / l^2 / 2;
 E_f = 100*E_1; %9.1 * E_1;
@@ -58,3 +59,6 @@ for i=1:n_ges
 end
 %%
 plot(x_pos(1:n_ges), n)
+%%
+%figure(3)
+%fplot(@(x) fermi(x-E_f, 300), [-E_f/e, E_max/e]);

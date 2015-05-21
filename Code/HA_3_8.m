@@ -57,20 +57,6 @@ for i=1:length(energies)
     n_elektronen_ges = n_elektronen_ges + sum(densities(i,:))*energy_step*a*fermi(E-E_f, T);
 end
 disp(n_elektronen_ges)
-%% carrier density
-% figure(2)
-% for i=1:n_ges
-%     x = x_pos(i);
-%     n_tmp = 0;
-%     for j=1:length(energies)
-%         E=energies(j);
-%         n_tmp = n_tmp + energy_step*fermi(E-E_f, T)*densities(j,i);
-%     end
-%     n(i)=n_tmp;
-% end
-%%
-%plot(x_pos(1:n_ges), n)
-%%
 
 %profile off
 %profile viewer

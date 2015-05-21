@@ -1,17 +1,14 @@
 clear all;
 close all;
-m_e = 9.1e-31;
-m = 0.5*m_e;
-nm = 1e-9;
-e = 1.6e-19;
+initialise_constants
 
+%% input parameters
+m = 0.5*m_e;
 l = 50*nm;
 a = 0.5*nm;
+%%
 
-h_bar = 1.0546e-34;
 t = h_bar^2 / (2*m * a^2);
-
-
 %E = 0.1;
 n_ges = floor(l/a);
 phi = zeros(n_ges,1);
@@ -21,9 +18,6 @@ E_max = 0.01*t; %0.0005*e;
 energy_step = E_max/1000;
 eta = 1*energy_step;
 energies = E_min : energy_step : E_max;
-%E_f = 0.1;
-%e = 1.6e-19;
-%prefactor = 2e15/4.135; % 2e/h oder h_quer
 
 side_diag = ones(n_ges, 1) .*  (-t);
 j = 1;
@@ -32,7 +26,6 @@ for E=energies
     H = spdiags([side_diag, middle_diag, side_diag], [1,0,-1], n_ges, n_ges);
     E_i_eta = spdiags(ones(n_ges, 1), [0], n_ges, n_ges) .* (E + 1i*eta);
     matrix = E_i_eta - H;
-    %spdiags([side_diag, middle_diag, side_diag], [1,0,-1], n_ges, n_ges );
     G = 1/a .* inv(matrix);
     densities(:, j) = -imag(diag(G));
     j = j+1;

@@ -52,37 +52,16 @@ for k=1:100
     %p = surf(x_pos(1:n_ges), energies, densities);
 
     %% Integrieren
-    int_res = 0; % integrierte elektronenzahl
+    n_elektronen = 0; % integrierte elektronenzahl
     for i=1:length(energies)
         E = energies(i);
-        int_res = int_res + sum(densities(i,:))*energy_step*a*fermi(E-E_f, T);
+        n_elektronen = n_elektronen + sum(densities(i,:))*energy_step*a*fermi(E-E_f, T);
     end
-    n_elektronen_ges(k) = int_res;
-    %disp(int_res)
+    n_elektronen_ges(k) = n_elektronen;
     
-    if k == 1 
-        figure(2)
-        p = surf(x_pos(1:n_ges), energies, densities);
-    end;
 end
 figure(1)
 plot(n_elektronen_ges);
-figure(3)
-p = surf(x_pos(1:n_ges), energies, densities);
-%% carrier density
-% figure(2)
-% for i=1:n_ges
-%     x = x_pos(i);
-%     n_tmp = 0;
-%     for j=1:length(energies)
-%         E=energies(j);
-%         n_tmp = n_tmp + energy_step*fermi(E-E_f, T)*densities(j,i);
-%     end
-%     n(i)=n_tmp;
-% end
-%%
-%plot(x_pos(1:n_ges), n)
-%%
 
 %profile off
 %profile viewer

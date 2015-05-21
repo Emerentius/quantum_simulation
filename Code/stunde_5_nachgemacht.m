@@ -22,17 +22,12 @@ coupling_left = 1;
 %%
 
 t = h_bar^2 / (2*m * a^2);
-%E_1 = (h_bar * pi)^2 / (2*m * l^2 ); % first state
 n_ges = floor(l/a);
 phi = e*poisson(-0.5,0,5*nm, 1*nm, 'a', a, 'l_ch', l/4+a, 'l_ds', 3*l/8, 'geometry', 'nano-wire');
-%phi = zeros(n_ges,1);
 figure(5);
 plot(phi);
 
 energies = E_min : energy_step : E_max;
-%prefactor = 2e15/4.135; % 2e/h oder h_quer
-
-k = 1; % Entfernter loop über k (verschiedene Potenziale)
 
 side_diag = ones(n_ges, 1) .*  (-t);
 for E_j=[energies; 1:length(energies)]
@@ -69,32 +64,14 @@ end
 x_pos = 0:a:l-a;
 
 %% Integrieren
-int_res = 0; % integrierte elektronenzahl
+n_elektronen = 0; % integrierte elektronenzahl
 for i=1:length(energies)
     E = energies(i);
-    int_res = int_res + sum(densities(i,:))*energy_step*a*fermi(E-E_f, T);
+    n_elektronen = n_elektronen + sum(densities(i,:))*energy_step*a*fermi(E-E_f, T);
 end
-n_elektronen_ges(k) = int_res;
-%disp(int_res)
 
-%figure(1)
-%plot(n_elektronen_ges);
 figure(3)
 p = surf(x_pos(1:n_ges), energies, densities);
-%% carrier density
-% figure(2)
-% for i=1:n_ges
-%     x = x_pos(i);
-%     n_tmp = 0;
-%     for j=1:length(energies)
-%         E=energies(j);
-%         n_tmp = n_tmp + energy_step*fermi(E-E_f, T)*densities(j,i);
-%     end
-%     n(i)=n_tmp;
-% end
-%%
-%plot(x_pos(1:n_ges), n)
-%%
 
 %profile off
 %profile viewer

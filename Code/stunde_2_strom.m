@@ -1,3 +1,7 @@
+%% 
+%% BROKEN
+%%
+
 voltage = compute_modified_poisson(-1, 30);
 E_barrier_max = max(voltage);
 E_min = E_barrier_max - 0.1;
