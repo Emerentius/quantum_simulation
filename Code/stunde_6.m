@@ -28,7 +28,7 @@ eta = 0.001*dE;
 
 t = h_bar^2 / (2*m * a^2);
 n_ges = floor(l/a);
-phi = eV*poisson(V_ds,0,5*nm, 1*nm, 'a', a, 'l_ch', l/4+a, 'l_ds', 3*l/8, 'geometry', 'nano-wire');
+phi = poisson(V_ds,0,5*nm, 1*nm, 'a', a, 'l_ch', l/4+a, 'l_ds', 3*l/8, 'geometry', 'nano-wire');
 figure(1);
 plot(phi);
 

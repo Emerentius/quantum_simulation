@@ -1,12 +1,13 @@
 function voltage = compute_modified_poisson(V_ds, V_g,  d_ch, d_ox, varargin)
+initialise_constants;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Silizium
-E_f_def = 0.1;
-E_g_def = 1;
+E_f_def = 0.1*eV;
+E_g_def = 1*eV;
 
 % Punktabstand
-a_def = 0.5;
+a_def = 0.5*nm;
 
 lambda_ds_def = '1 lambda'; % in lambda_ch
 
@@ -16,8 +17,8 @@ l_ds_def = '5 lambda'; % in lambda_ds
 geometry_def = 'single gate';
 
 % Silizium
-eps_ox_def = 3.9;
-eps_ch_def = 11.2;
+eps_ox_def = eps_sio2;
+eps_ch_def = eps_si;
 
 expected_geometry = {'single gate','double gate','triple gate', 'tri-gate', 'nano-wire', 'nanowire'};
 
@@ -58,13 +59,13 @@ a = p.Results.a;
 % geometry
 switch(p.Results.geometry)
     case {'single gate'}
-        lambda = sqrt(d_ox*d_ch*eps_ch/eps_ox);
+        lambda = lambda_single_gate(d_ch,d_ox,eps_ch,eps_ox);
     case {'double gate'}
-        lambda = sqrt(d_ox*d_ch*eps_ch/eps_ox/2);
+        lambda = lambda_double_gate(d_ch,d_ox,eps_ch,eps_ox);
     case {'triple gate', 'tri-gate'}
-        lambda = sqrt(d_ox*d_ch*eps_ch/eps_ox/3);
+        lambda = lambda_triple_gate(d_ch,d_ox,eps_ch,eps_ox);
     case {'nano-wire', 'nanowire'}
-        lambda = sqrt( eps_ch * d_ch*d_ch / 8 / eps_ox * log(1+ 2*d_ox/d_ch) );
+        lambda = lambda_nanowire(d_ch,d_ox,eps_ch,eps_ox);
 end
 
 % lambda_ds
@@ -106,8 +107,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 phi_bi = -(E_f + E_g/2);
-phi_ds = -V_ds;
-phi_g = -V_g;
+phi_ds = -V_ds*eV;
+phi_g = -V_g*eV;
 
 %lambda_ds = lambda; %0.2*lambda;
 %l_ch = 5*lambda;

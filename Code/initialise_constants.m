@@ -28,3 +28,7 @@ eV_per_J = 1/e;
 J_per_eV = eV;
 
 nm = 1e-9;
+
+% material
+eps_sio2 = 11.2;
+eps_si = 3.9;
