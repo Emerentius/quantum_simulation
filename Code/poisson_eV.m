@@ -1,4 +1,5 @@
-function voltage = compute_modified_poisson(V_ds, V_g,  d_ch, d_ox, varargin)
+function voltage = poisson_eV(V_ds, V_g,  d_ch, d_ox, varargin)
+initialise_constants;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Silizium
@@ -6,7 +7,7 @@ E_f_def = 0.1;
 E_g_def = 1;
 
 % Punktabstand
-a_def = 0.5;
+a_def = 0.5*nm;
 
 lambda_ds_def = '1 lambda'; % in lambda_ch
 
@@ -16,8 +17,8 @@ l_ds_def = '5 lambda'; % in lambda_ds
 geometry_def = 'single gate';
 
 % Silizium
-eps_ox_def = 3.9;
-eps_ch_def = 11.2;
+eps_ox_def = eps_sio2;
+eps_ch_def = eps_si;
 
 expected_geometry = {'single gate','double gate','triple gate', 'tri-gate', 'nano-wire', 'nanowire'};
 
@@ -55,66 +56,30 @@ eps_ox = p.Results.eps_ox;
 eps_ch = p.Results.eps_ch;
 a = p.Results.a;
 
-% geometry
-switch(p.Results.geometry)
-    case {'single gate'}
-        lambda = sqrt(d_ox*d_ch*eps_ch/eps_ox);
-    case {'double gate'}
-        lambda = sqrt(d_ox*d_ch*eps_ch/eps_ox/2);
-    case {'triple gate', 'tri-gate'}
-        lambda = sqrt(d_ox*d_ch*eps_ch/eps_ox/3);
-    case {'nano-wire', 'nanowire'}
-        lambda = sqrt( eps_ch * d_ch*d_ch / 8 / eps_ox * log(1+ 2*d_ox/d_ch) );
-end
+% lambda inside channel
+lambda = lambda_by_geometry(d_ch, d_ox, eps_ch, eps_ox, p.Results.geometry);
 
-% lambda_ds
-if ischar( p.Results.lambda_ds )
-    lambda_ds = lambda * sscanf( p.Results.lambda_ds, '%f lambda');
-else % it is a numeric scalar
-    lambda_ds = p.Results.lambda_ds;
-end
+% Parse inputs that are either numeric or multiples of lambda in form of a
+% string
+lambda_ds = parse_numeric_or_string(p.Results.lambda_ds, lambda);
 
-% l_ch
-if ischar( p.Results.l_ch )
-    l_ch = lambda * sscanf( p.Results.l_ch, '%f lambda');
-else % it is a numeric scalar
-    l_ch = p.Results.l_ch;
-end
+l_ch = parse_numeric_or_string(p.Results.l_ch, lambda);
+l_ch = possible_length(l_ch, a);
 
-% l_ds, abhängig von lambda_ds
-if ischar( p.Results.l_ds )
-    l_ds = lambda_ds * sscanf( p.Results.l_ds, '%f lambda');
-else % it is a numeric scalar
-    l_ds = p.Results.l_ds;
-end
-
-
-% anonyme funktionen sind extrem beschränkt in matlab
-
-% %%%% helper function
-% parse_numeric_or_string = @(input, lamb) if ischar( input )
-%         lambda * sscanf( input, '%f lambda')
-%     else % it is a numeric scalar
-%         input
-%     end
-% %%%%%
-
-%lambda_ds = parse_numeric_or_string( p.Results.lambda_ds, lambda);
-%l_ch = parse_numeric_or_string( p.Results.l_ch, lambda);
-%l_ds = parse_numeric_or_string( p.Results.l_ds, lambda_ds);
+% l_ds is dependent upon lambda_ds
+l_ds = parse_numeric_or_string(p.Results.l_ds, lambda_ds);
+l_ds = possible_length(l_ds, a);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% negativ, da positiv genutzt
+% TODO: anpassen
 phi_bi = -(E_f + E_g/2);
 phi_ds = -V_ds;
 phi_g = -V_g;
-
-%lambda_ds = lambda; %0.2*lambda;
-%l_ch = 5*lambda;
-%l_ds = 4*lambda_ds;
    
-n_ds = floor(l_ds / a);
-n_ch = floor(l_ch / a);
+n_ds = n_lattice_points(l_ds, a);
+n_ch = n_lattice_points(l_ch, a);
 n_ges = 2*n_ds + n_ch;
 %l_ges = l_ch + 2*l_ds;
 

@@ -1,4 +1,4 @@
-function voltage = compute_modified_poisson(V_ds, V_g,  d_ch, d_ox, varargin)
+function voltage = poisson(V_ds, V_g,  d_ch, d_ox, varargin)
 initialise_constants;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -56,66 +56,30 @@ eps_ox = p.Results.eps_ox;
 eps_ch = p.Results.eps_ch;
 a = p.Results.a;
 
-% geometry
-switch(p.Results.geometry)
-    case {'single gate'}
-        lambda = lambda_single_gate(d_ch,d_ox,eps_ch,eps_ox);
-    case {'double gate'}
-        lambda = lambda_double_gate(d_ch,d_ox,eps_ch,eps_ox);
-    case {'triple gate', 'tri-gate'}
-        lambda = lambda_triple_gate(d_ch,d_ox,eps_ch,eps_ox);
-    case {'nano-wire', 'nanowire'}
-        lambda = lambda_nanowire(d_ch,d_ox,eps_ch,eps_ox);
-end
+% lambda inside channel
+lambda = lambda_by_geometry(d_ch, d_ox, eps_ch, eps_ox, p.Results.geometry);
 
-% lambda_ds
-if ischar( p.Results.lambda_ds )
-    lambda_ds = lambda * sscanf( p.Results.lambda_ds, '%f lambda');
-else % it is a numeric scalar
-    lambda_ds = p.Results.lambda_ds;
-end
+% Parse inputs that are either numeric or multiples of lambda in form of a
+% string
+lambda_ds = parse_numeric_or_string(p.Results.lambda_ds, lambda);
 
-% l_ch
-if ischar( p.Results.l_ch )
-    l_ch = lambda * sscanf( p.Results.l_ch, '%f lambda');
-else % it is a numeric scalar
-    l_ch = p.Results.l_ch;
-end
+l_ch = parse_numeric_or_string(p.Results.l_ch, lambda);
+l_ch = possible_length(l_ch, a);
 
-% l_ds, abhängig von lambda_ds
-if ischar( p.Results.l_ds )
-    l_ds = lambda_ds * sscanf( p.Results.l_ds, '%f lambda');
-else % it is a numeric scalar
-    l_ds = p.Results.l_ds;
-end
-
-
-% anonyme funktionen sind extrem beschränkt in matlab
-
-% %%%% helper function
-% parse_numeric_or_string = @(input, lamb) if ischar( input )
-%         lambda * sscanf( input, '%f lambda')
-%     else % it is a numeric scalar
-%         input
-%     end
-% %%%%%
-
-%lambda_ds = parse_numeric_or_string( p.Results.lambda_ds, lambda);
-%l_ch = parse_numeric_or_string( p.Results.l_ch, lambda);
-%l_ds = parse_numeric_or_string( p.Results.l_ds, lambda_ds);
+% l_ds is dependent upon lambda_ds
+l_ds = parse_numeric_or_string(p.Results.l_ds, lambda_ds);
+l_ds = possible_length(l_ds, a);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% negativ, da positiv genutzt
+% TODO: anpassen
 phi_bi = -(E_f + E_g/2);
-phi_ds = -V_ds*eV;
-phi_g = -V_g*eV;
-
-%lambda_ds = lambda; %0.2*lambda;
-%l_ch = 5*lambda;
-%l_ds = 4*lambda_ds;
+phi_ds = -V_ds*e;
+phi_g = -V_g*e;
    
-n_ds = floor(l_ds / a);
-n_ch = floor(l_ch / a);
+n_ds = n_lattice_points(l_ds, a);
+n_ch = n_lattice_points(l_ch, a);
 n_ges = 2*n_ds + n_ch;
 %l_ges = l_ch + 2*l_ds;
 
