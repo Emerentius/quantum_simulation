@@ -65,7 +65,8 @@ function density = compute_carrier_density_and_DOS(obj)
     end
     %% Note: multiply with a to counteract the squaring, divide by area for 3D
     % TODO: factor out 1D and 3D density
-    density = density * a /obj.area_ch;
+    % 2 for spin degeneracy
+    density = 2*density * a /obj.area_ch;
     %%
     obj.set_carrier_density_and_DOS(density, DOS);
 end

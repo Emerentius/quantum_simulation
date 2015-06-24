@@ -21,17 +21,17 @@ function delta_phi = update_phi(obj, newton_raphson_step_size)
     n_ges = obj.n_ges();
     
     
-    %% J new attempt
+    %% J
     J_mid_diag = obj.regioned_vector(-1/lambda_ds^2, -1/lambda^2, -1/lambda_ds^2);
     J_mid_diag = J_mid_diag - 2/a^2;
     % rho = -e*density
-    J_mid_diag = J_mid_diag + (-e*density)*helper.to_nm(e/(k_B*T)/eps_0/eps);
+    J_mid_diag = J_mid_diag + helper.to_nm(e/k_B/T/eps_0/eps)*(-e*density);
     J_side_diag = 1/a^2 * ones(n_ges,1);
     
     J = spdiags([J_side_diag, J_mid_diag, J_side_diag], [1,0,-1], n_ges, n_ges);
     J(1,2)            = 2/a^2;
     J(n_ges, n_ges-1) = 2/a^2;
-    %% F new attempt
+    %% F
     % first term
     F = helper.second_derivative_von_neumann(phi, a);
     
@@ -45,7 +45,7 @@ function delta_phi = update_phi(obj, newton_raphson_step_size)
     
     % Note: Originally e^2, 1 e from formula, 1 e from rho = -e*density
     %       one e gone for eV, but an extra minus remains
-    F = F - (-1)*(density - N)*helper.to_nm(e/eps_0/eps);
+    F = F - (-density + N)*helper.to_nm(e/eps_0/eps);
     
     delta_phi = -J\F;
     obj.set_phi(phi + delta_phi*newton_raphson_step_size);

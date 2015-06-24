@@ -1,18 +1,15 @@
-%
-% Function to calculate density is in carrier_density.m
-%
 clear all;
-close all;
+%close all;
 
 import Transistor.Transistor;
 initialise_constants
 %profile on
 %% input parameters and transistor instantiation
 tr = Transistor(0.3, ...    % V_ds
-                0.68, ...    % V_g
-                5,   ...   % d_ch
-                5,   ...   % d_ox
-                0.2, ... % a
+                0.68, ...   % V_g
+                5,   ...    % d_ch
+                5,   ...    % d_ox
+                0.5, ...    % a % 0.2
                 2000, ...   % n_energy_steps
                 'm',         0.2*m_e,      ...
                 'T',         300,          ...
@@ -33,9 +30,12 @@ plot_every = 10;
 % stop on first condition reached
 REPS = plot_every * 4;
 LIMIT_DELTA_PHI = 1e-3;
+%LIMIT_DELTA_PHI = 1e-3;
 
 compute_self_consistent = 1;
 %%
+
+
 if ~compute_self_consistent
     tr.carrier_density();
     tr.plot_phi;
