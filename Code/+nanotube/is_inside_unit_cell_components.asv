@@ -1,0 +1,5 @@
+% Experimental
+% 1 direction
+function is_inside = is_inside_unit_cell_by_components(vec_n, vec_m, is_inside_unit_cell, n,m, n_p, m_p)
+	is_inside =  && (num < range_end);
+end

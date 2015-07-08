@@ -1,0 +1,14 @@
+function [m,n, is_on_left_sublattice] = vec2components(vec)
+    nanotube.initialise_constants;
+    vec = vec/a_c;
+    
+    % on the left sublattice, there is an offset of -1/3 (a1+a2)
+    % which is completely in x
+    to_be_m = vec(2)+vec(1)/sqrt(3);
+    to_be_m_integer_part = fix(to_be_m); % round towards zero == integer part
+    is_on_left_sublattice = (
+    m = round( vec(2)+vec(1)/sqrt(3) );
+    n = round( vec(1)/sqrt(3) - vec(2) );
+    
+    
+end
