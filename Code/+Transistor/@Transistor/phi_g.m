@@ -1,3 +1,3 @@
 function phi_g_ = phi_g(obj)
-    phi_g  = -obj.V_g;
+    phi_g_  = -obj.V_g;
 end

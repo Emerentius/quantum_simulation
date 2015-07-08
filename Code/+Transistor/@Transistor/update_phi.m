@@ -5,13 +5,8 @@
 function delta_phi = update_phi(obj, newton_raphson_step_size)
     initialise_constants;
     %% Extract some relevant data
-    eps = obj.source.eps;
+    eps = obj.eps_ch;
     phi = obj.phi;
-    
-    % like in poisson
-    phi_bi = obj.E_g/2 + obj.E_f;
-    phi_g = -obj.V_g;
-    phi_ds = -obj.V_ds;
     
     a = obj.a;
     T = obj.T;
@@ -20,11 +15,20 @@ function delta_phi = update_phi(obj, newton_raphson_step_size)
     density = obj.carrier_density(); % column vector
     n_ges = obj.n_ges();
     
+    %% dent correction
+    %  TODO: make limit adjustable
+    %        maybe expand to other places (drain?)
+    LIMIT = 0.01;
+    min_phi = min(phi(obj.source.range));
+    if phi(1) - min_phi > LIMIT % eV
+        phi(obj.source.range) = min_phi;
+    end
     
     %% J
-    J_mid_diag = obj.regioned_vector(-1/lambda_ds^2, -1/lambda^2, -1/lambda_ds^2);
-    J_mid_diag = J_mid_diag - 2/a^2;
-    % rho = -e*density
+    J_mid_diag = obj.regioned_vector(-1/lambda_ds^2, -1/lambda^2, -1/lambda_ds^2) ...
+                 -2/a^2;
+    % rho = -e*carrier_density + e*dopant_density
+    % dopant_density falls away due to differentiation
     J_mid_diag = J_mid_diag + helper.to_nm(e/k_B/T/eps_0/eps)*(-e*density);
     J_side_diag = 1/a^2 * ones(n_ges,1);
     
@@ -37,15 +41,15 @@ function delta_phi = update_phi(obj, newton_raphson_step_size)
     
     % second term
     F = F - [obj.source.phi / lambda_ds^2; ...
-            (obj.gate.phi -phi_bi - phi_g)/lambda^2; ...
-            (obj.drain.phi - phi_ds) / lambda_ds^2];
+            (obj.gate.phi - obj.phi_bi - obj.phi_g)/lambda^2; ...
+            (obj.drain.phi - obj.phi_ds) / lambda_ds^2];
     
     % third term
-    N = obj.regioned_vector(obj.dopant_density, 0, obj.dopant_density);
+    dop_density = obj.regioned_vector(obj.dopant_density, 0, obj.dopant_density);
     
-    % Note: Originally e^2, 1 e from formula, 1 e from rho = -e*density
-    %       one e gone for eV, but an extra minus remains
-    F = F - (-density + N)*helper.to_nm(e/eps_0/eps);
+    % One e gone for eV
+    % rho = -e*density + e*dop_density      
+    F = F - (-density + dop_density)*helper.to_nm(e/eps_0/eps);
     
     delta_phi = -J\F;
     obj.set_phi(phi + delta_phi*newton_raphson_step_size);

@@ -1,3 +1,6 @@
+%
+% Currently not used, may not be up to date
+%
 function F_out = F(obj)
     initialise_constants;
     %% Extract some relevant data
