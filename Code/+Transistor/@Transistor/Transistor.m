@@ -1,4 +1,4 @@
-classdef Transistor
+classdef Transistor < handle
     properties (GetAccess = public, SetAccess = protected)
         source
         gate
@@ -149,6 +149,14 @@ classdef Transistor
                     error('You need to specify either dE or n_energy_steps before accessing .dE');
                 end
                 dE_ = (obj.E_max - obj.E_min)/obj.n_energy_steps;                     
+            end
+        end
+        
+        function n_steps = get.n_energy_steps(obj)
+            if ~isempty(obj.n_energy_steps)
+                n_steps = obj.n_energy_steps;
+            else
+                n_steps = length(obj.energy_range) - 1; % inefficient, but robust. Should be changed regardless.
             end
         end
     end
