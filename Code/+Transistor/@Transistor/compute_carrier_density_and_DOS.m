@@ -55,7 +55,7 @@ function density = compute_carrier_density_and_DOS(obj)
          
         %G = 1/a * inv( E_i_eta - H - sigma_source - sigma_drain );
         %G = inv( E_i_eta - H - sigma_source - sigma_drain );
-        G = inv( minus_H + E_i_eta - sigma_source - sigma_drain);
+        G = eye(n_ges)/( minus_H + E_i_eta - sigma_source - sigma_drain);
         %% Save transmission probability
         % Todo: check dimensions
         obj.transmission_probability(jj) = 4*t^2*sin(ka_source)*sin(ka_drain)*abs(G(1,n_ges))^2; % * a^2;

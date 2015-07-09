@@ -35,22 +35,25 @@ function delta_phi = update_phi(obj, newton_raphson_step_size)
     J = spdiags([J_side_diag, J_mid_diag, J_side_diag], [1,0,-1], n_ges, n_ges);
     J(1,2)            = 2/a^2;
     J(n_ges, n_ges-1) = 2/a^2;
-    %% F
-    % first term
-    F = helper.second_derivative_von_neumann(phi, a);
     
-    % second term
-    F = F - [obj.source.phi / lambda_ds^2; ...
-            (obj.gate.phi - obj.phi_bi - obj.phi_g)/lambda^2; ...
-            (obj.drain.phi - obj.phi_ds) / lambda_ds^2];
-    
-    % third term
-    dop_density = obj.regioned_vector(obj.dopant_density, 0, obj.dopant_density);
-    
-    % One e gone for eV
-    % rho = -e*density + e*dop_density      
-    F = F - (-density + dop_density)*helper.to_nm(e/eps_0/eps);
-    
-    delta_phi = -J\F;
-    obj.set_phi(phi + delta_phi*newton_raphson_step_size);
+    for jjj = 1:15
+        %% F
+        % first term
+        F = helper.second_derivative_von_neumann(obj.phi, a);
+
+        % second term
+        F = F - [obj.source.phi / lambda_ds^2; ...
+                (obj.gate.phi - obj.phi_bi - obj.phi_g)/lambda^2; ...
+                (obj.drain.phi - obj.phi_ds) / lambda_ds^2];
+
+        % third term
+        dop_density = obj.regioned_vector(obj.dopant_density, 0, obj.dopant_density);
+
+        % One e gone for eV
+        % rho = -e*density + e*dop_density      
+        F = F - (-density + dop_density)*helper.to_nm(e/eps_0/eps);
+
+        delta_phi = -J\F;
+        obj.set_phi(obj.phi + delta_phi*newton_raphson_step_size);
+    end
 end
