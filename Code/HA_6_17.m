@@ -31,20 +31,25 @@ MAX_ITERATIONS = 200;
 V_g_range = 0.0: 0.05 : 0.7;
 phi_fig = figure;
 hold on;
+iterations_counter = 0;
 for Vgjj = [V_g_range; 1:length(V_g_range)]
     V_g = Vgjj(1);
     jj = Vgjj(2);
     tr.set_V_g(V_g);
-    disp(tr.make_self_consistent(NEWTON_STEP_SIZE, LIMIT_DELTA_PHI, MAX_ITERATIONS));
+    iterations = tr.make_self_consistent(NEWTON_STEP_SIZE, LIMIT_DELTA_PHI, MAX_ITERATIONS);
+    disp(iterations);
+    iterations_counter = iterations_counter + iterations;
     I(jj) = tr.current;
     if V_g >= 0.5 
         tr.plot_phi(phi_fig)
     end
 end
+disp(iterations_counter);
 figure
 plot(V_g_range, I);
-xlabel('V_g');
-ylabel('$\log_{10}\left(\frac{I}{A}\right))$', 'interpreter', 'latex');
+xlabel('V_g [V]');
+ylabel('I [A]');
+set(gca, 'yscale', 'log');
 
 %profile off
 %profile viewer
