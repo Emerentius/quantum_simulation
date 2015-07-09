@@ -9,6 +9,8 @@ function iterations = make_self_consistent(obj, newton_step_size, limit, max_ite
         end
         iterations = iterations + 1;
     end
-    % recalculate carrier density and DOS
+    % recalculate carrier density and DOS for internal consistency
+    % This method also computes transmission probability and ensures
+    % it has as many elements as obj.energy_range
     obj.compute_carrier_density_and_DOS;
 end

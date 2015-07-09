@@ -14,16 +14,6 @@ function delta_phi = update_phi(obj, newton_raphson_step_size)
     lambda_ds = obj.lambda_ds();
     density = obj.carrier_density(); % column vector
     n_ges = obj.n_ges();
-    
-    %% dent correction
-    %  TODO: make limit adjustable
-    %        maybe expand to other places (drain?)
-    LIMIT = 0.01;
-    min_phi = min(phi(obj.source.range));
-    if phi(1) - min_phi > LIMIT % eV
-        phi(obj.source.range) = min_phi;
-    end
-    
     %% J
     J_mid_diag = obj.regioned_vector(-1/lambda_ds^2, -1/lambda^2, -1/lambda_ds^2) ...
                  -2/a^2;

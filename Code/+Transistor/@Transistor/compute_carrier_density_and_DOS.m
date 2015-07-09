@@ -1,7 +1,7 @@
 % TODO: - look at dimensions, where is the 1e9 (nm) factor coming in?
 %       - dimensions of DOS in particular
 %% Carrier Density
-function density = compute_carrier_density_and_DOS(obj)
+function compute_carrier_density_and_DOS(obj)
     %% avoid recalculating
     if (~obj.phi_changed_since_DOS_calculation)
          return
@@ -23,8 +23,8 @@ function density = compute_carrier_density_and_DOS(obj)
     %%
 
     % Integrationsgrenzen
-    dE = obj.dE; %(E_max-E_min)/n_energy_steps;
-    energies = obj.energy_range; %E_min : dE : E_max;
+    dE = obj.dE;
+    energies = obj.energy_range;
     eta = 0.001*dE; % kann beliebig klein
 
     t = obj.t();
@@ -36,8 +36,8 @@ function density = compute_carrier_density_and_DOS(obj)
     obj.transmission_probability = zeros(n_energy_steps+1,1);
     %% precalculate
     minus_H = - spdiags([ -t*ones(n_ges,1), ... % upper diag
-                  phi + 2*t,        ... % middle diag
-                  -t*ones(n_ges,1), ... % lower diag
+                          phi + 2*t,        ... % middle diag
+                          -t*ones(n_ges,1), ... % lower diag
                 ], ...
                 [1,0,-1], n_ges, n_ges);
     %%
@@ -52,53 +52,34 @@ function density = compute_carrier_density_and_DOS(obj)
         % sparse matrices of size n_ges by n_ges, one element
         sigma_source = sparse(1,1,          -t*exp(1i*ka_source), n_ges, n_ges);
         sigma_drain  = sparse(n_ges, n_ges, -t*exp(1i*ka_drain ), n_ges, n_ges);
-         
-        %G = 1/a * inv( E_i_eta - H - sigma_source - sigma_drain );
-        %G = inv( E_i_eta - H - sigma_source - sigma_drain );
-        G = eye(n_ges)/( minus_H + E_i_eta - sigma_source - sigma_drain);
+        
+        % invert
+        G = ( minus_H + E_i_eta - sigma_source - sigma_drain) \ eye(n_ges);
         %% Save transmission probability
-        % Todo: check dimensions
-        obj.transmission_probability(jj) = 4*t^2*sin(ka_source)*sin(ka_drain)*abs(G(1,n_ges))^2; % * a^2;
+        obj.transmission_probability(jj) = 4*t^2*sin(ka_source)*sin(ka_drain)*abs(G(1,n_ges))^2;
         %%
         % DOS == A/2pi
-        DOS_source = t*sin(ka_source)/pi * abs(G(:, 1    ).^2)  / a;
-        DOS_drain  = t*sin(ka_drain )/pi * abs(G(:, n_ges).^2)  / a;
+        DOS_source = t*sin(ka_source)/pi * abs(G(:, 1    ).^2) / a;
+        DOS_drain  = t*sin(ka_drain )/pi * abs(G(:, n_ges).^2) / a;
         
         %% Save DOS
-        %DOS(jj,:) = -imag(diag(G))/a;
         DOS(jj,:) = DOS_source.' + DOS_drain.';
-        %% integrate DOS for carrier density
-%         correct but slow
-%         density  = density + dE*( ...
-%             DOS_source*obj.fermi_source(E) + ...
-%             DOS_drain *obj.fermi_drain(E)    ...
-%         );
-
-        % inlined fermi function
-        
+        %% inlined fermi function for carrier density integration
+        % external function calls are very expensive
+        fermi_source = 1/(exp( (E-E_f_source)/k_B_eV/T ) + 1);
+        fermi_drain  = 1/(exp( (E-E_f_drain)/k_B_eV/T ) + 1);
         if T == 0 
-            % this is necessary, because the calculation below breaks down
+            % this is necessary, because the calculation above breaks down
             % for T = 0 and returns NaN.
             if (E-E_f_source) == 0 
                 fermi_source = 0.5;
-            elseif (E-E_f_source) < 0
-                fermi_source = 1;
-            else
-                fermi_source = 0;
             end
-            
+
             if (E-E_f_drain) == 0
                 fermi_drain = 0.5;
-            elseif (E-E_f_drain) < 0
-                fermi_drain = 1;
-            else
-                fermi_drain = 0;
             end
-        else
-        	fermi_source = 1/(exp( (E-E_f_source)/k_B_eV/T ) + 1);
-        	fermi_drain  = 1/(exp( (E-E_f_drain)/k_B_eV/T ) + 1);
         end
-        
+        %% integrate carrier density
         % 2 for spin degeneracy
         density  = density + 2*dE*( ...
             DOS_source*fermi_source + ...
