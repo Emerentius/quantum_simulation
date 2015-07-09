@@ -1,7 +1,5 @@
-% take a 2xN array [v1, v2, v3...] and return a 3xN array of layout [n1, n2, n3... ; m1,
-% m2, m3; is_on_left1 is_on_left2 is_on_left3]
-% v1, v2... are 2x1 arrays
-% if third component is_on_left is 1, the atom lies on the left sublattice
+% Convert a 2xN array [ [x; y], ...] to a 3xN array [ [n; m; is_on_left], ...]
+% if third component is_on_left is true (1), the atom lies on the left sublattice
 function component_vec = vec_vec2components_vec(vec)
     nanotube.initialise_constants;
     vec = vec/a_c;

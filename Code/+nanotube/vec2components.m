@@ -1,3 +1,4 @@
+% Convert position space vector into n,m and sublattice-information
 function [n,m, is_on_left_sublattice] = vec2components(vec)
     nanotube.initialise_constants;
     vec = vec/a_c;

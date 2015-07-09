@@ -1,3 +1,4 @@
+% Return equivalent vector lieing in the first Brillouin zone
 function new_vec = reduce_vector(vector, C,P)
     projection_C = dot(vector, C);
     projection_P = dot(vector, P);

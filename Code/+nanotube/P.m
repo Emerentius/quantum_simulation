@@ -1,3 +1,4 @@
+% Translational vector
 function P = P(n,m)
     nanotube.initialise_constants;
     %a1 = [sqrt(3); +1]/2;
