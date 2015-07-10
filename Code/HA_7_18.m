@@ -28,18 +28,18 @@ LIMIT_DELTA_PHI = 1e-3;
 MAX_ITERATIONS = 200;
 
 %%
-%disp(tr.make_self_consistent(NEWTON_STEP_SIZE, LIMIT_DELTA_PHI, MAX_ITERATIONS));
-%charge00 = tr.charge_gate;
-%tr.plot_phi;
+disp(tr.make_self_consistent(NEWTON_STEP_SIZE, LIMIT_DELTA_PHI, MAX_ITERATIONS));
+charge00 = tr.charge_gate;
+tr.plot_phi;
 
-%tr.set_V_ds(0.5);
-%disp(tr.make_self_consistent(NEWTON_STEP_SIZE, LIMIT_DELTA_PHI, MAX_ITERATIONS));
-%charge05 = tr.charge_gate;
-%tr.plot_phi
+tr.set_V_ds(0.5);
+disp(tr.make_self_consistent(NEWTON_STEP_SIZE, LIMIT_DELTA_PHI, MAX_ITERATIONS));
+charge05 = tr.charge_gate;
+tr.plot_phi
 
-%charge_fig = figure;
-%hold on;
-%plot([0.0 0.5], [charge00 charge05]);
+charge_fig = figure;
+hold on;
+plot([0.0 0.5], [charge00 charge05]);
 
 %profile off
 %profile viewer
