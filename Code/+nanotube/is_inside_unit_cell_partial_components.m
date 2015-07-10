@@ -1,7 +1,7 @@
 % Experimental
 % 1 direction
-function is_inside = is_inside_unit_cell_by_components(components_vec, n,m)
-    if components_vec(3) % => is inside unit cell
+function is_inside = is_inside_unit_cell_partial_components(components_vec, n,m)
+    if components_vec(3) % => is on left sublattice
         vec_3n = 3*int32(components_vec(1)) - 1;
         vec_3m = 3*int32(components_vec(2)) - 1;
     else

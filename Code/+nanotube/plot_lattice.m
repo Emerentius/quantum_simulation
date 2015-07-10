@@ -1,6 +1,6 @@
 % Plot graphene lattice and overlay the CNT unit cell and CNT vectors
-function plot_lattice(n,m)
-    figure('name', ['n = ', num2str(n) ', m = ' num2str(m)]);
+function fig = plot_lattice(n,m)
+    fig = figure('name', ['n = ', num2str(n) ', m = ' num2str(m)]);
     xlabel('x [nm]');
     ylabel('y [nm]');
     axis square
