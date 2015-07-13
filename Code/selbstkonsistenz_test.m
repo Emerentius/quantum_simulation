@@ -1,7 +1,6 @@
 clear all;
 close all;
 
-import Transistor.Transistor;
 initialise_constants;
 %profile on;
 %% input parameters and transistor instantiation

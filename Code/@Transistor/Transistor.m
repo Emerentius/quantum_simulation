@@ -23,17 +23,15 @@ classdef Transistor < handle
     end
     
     properties (Access = protected)
+        %% private flags to not unnecessarily recalculate data 
         is_self_consistent = false
-        %% private flag to not unnecessarily recalculate data 
         phi_changed_since_DOS_calculation
     end
     %%
     methods
         %% Constructor
         function obj = Transistor(V_ds, V_g, d_ch, d_ox, a, varargin)
-            initialise_constants;
-            import Transistor.Region.*;
-            
+            initialise_constants;            
             %%%%%%%%%%%% default values %%%%%%%%%%%%%%%%%%%
             % Silizium
             E_f_def = 0.1;

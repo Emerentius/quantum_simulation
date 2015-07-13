@@ -1,8 +1,5 @@
 %clear all;
 %close all;
-%profile on
-
-import Transistor.Transistor;
 initialise_constants
 %% input parameters and transistor instantiation
 tr = Transistor(0.5, ...    % V_ds
@@ -50,6 +47,3 @@ plot(V_g_range, I);
 xlabel('V_g [V]');
 ylabel('I [A]');
 set(gca, 'yscale', 'log');
-
-%profile off
-%profile viewer

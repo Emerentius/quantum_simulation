@@ -1,7 +1,6 @@
-%% Superclass for the classes SourceDrain and Gate, encapsulating
-%  variables that every one of these regions has
+%% Class for source, gate and drain.
 classdef Region < handle
-    properties (GetAccess = public, SetAccess = {?Transistor.Transistor, ?Transistor.Region.Region})
+    properties (GetAccess = public, SetAccess = {?Transistor, ?Region})
         phi
         carrier_density
         DOS

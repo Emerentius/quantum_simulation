@@ -1,9 +1,7 @@
 clear all;
 close all;
 
-import Transistor.Transistor;
 initialise_constants
-%profile on
 %% input parameters and transistor instantiation
 tr = Transistor(0.3, ...    % V_ds
                 0.6, ...   % V_g

@@ -1,8 +1,6 @@
-%clear all;
-%close all;
-%profile on
+clear all;
+close all;
 
-import Transistor.Transistor;
 initialise_constants
 %% input parameters and transistor instantiation
 tr = Transistor(0.0, ...    % V_ds
@@ -40,6 +38,3 @@ tr.plot_phi
 charge_fig = figure;
 hold on;
 plot([0.0 0.5], [charge00 charge05]);
-
-%profile off
-%profile viewer
