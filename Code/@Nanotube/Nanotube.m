@@ -1,4 +1,4 @@
-classdef Nanotube
+classdef Nanotube < handle
     properties (GetAccess=public, SetAccess=protected)
         n
         m
@@ -11,6 +11,10 @@ classdef Nanotube
         lattice_points
         lattice_points_components % array of component vectors
         components2num % map taking 'n m is_on_left' string
+        energy_bands
+        k_range
+        valence_band
+        conduction_band
     end
     
     methods 
@@ -37,6 +41,15 @@ classdef Nanotube
                     counter = counter + 1;
                 end
             end
+            
+            %% Compute energy bands
+            n_k_steps = 1000;
+            obj.compute_energy_bands(n_k_steps);
+            
+            %% Extract valence and conduction band
+            n_bands = size(obj.energy_bands, 1);
+            obj.conduction_band = obj.energy_bands(n_bands/2 + 1, :);
+            obj.valence_band = obj.energy_bands(n_bands/2, :);
         end
     end
 end
