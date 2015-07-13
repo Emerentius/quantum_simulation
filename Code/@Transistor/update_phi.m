@@ -19,7 +19,7 @@ function delta_phi = update_phi(obj, newton_step_size)
                  -2/a^2;
     % rho = -e*carrier_density + e*dopant_density
     % dopant_density falls away due to differentiation
-    J_mid_diag = J_mid_diag + helper.to_nm(e/k_B/T/eps_0/eps)*(-e*density);
+    J_mid_diag = J_mid_diag + helper.m_to_nm(e/k_B/T/eps_0/eps)*(-e*density);
     J_side_diag = 1/a^2 * ones(n_ges,1);
     
     J = spdiags([J_side_diag, J_mid_diag, J_side_diag], [1,0,-1], n_ges, n_ges);
@@ -41,7 +41,7 @@ function delta_phi = update_phi(obj, newton_step_size)
 
         % One e gone for eV
         % rho = -e*density + e*dop_density      
-        F = F - (-density + dop_density)*helper.to_nm(e/eps_0/eps);
+        F = F - (-density + dop_density)*helper.m_to_nm(e/eps_0/eps);
 
         delta_phi = -J\F;
         phi = phi + delta_phi * newton_step_size;

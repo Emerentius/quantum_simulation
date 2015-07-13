@@ -1,8 +1,11 @@
-function plot_DOS(obj, varargin)
+function plot_DOS(obj, fig)
+    if ~exist('fig', 'var')
+        fig = figure;
+    else
+        figure(fig);
+    end
+    
     initialise_constants;
-    %take or create new figure handle
-    fig = helper.check_figure_handle(varargin{:});
-    figure(fig);
     
     phi = obj.phi;
     x_range = [1:obj.n_ges]*obj.a;

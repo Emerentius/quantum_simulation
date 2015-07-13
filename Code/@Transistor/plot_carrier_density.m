@@ -1,7 +1,9 @@
-function plot_carrier_density(obj, varargin)
-    %take or create new figure handle
-    fig = helper.check_figure_handle(varargin{:});
-    figure(fig);
+function plot_carrier_density(obj, fig)
+    if ~exist('fig', 'var')
+        fig = figure;
+    else
+        figure(fig);
+    end
     
     initialise_constants;
     set(fig, 'name', 'carrier density');    
