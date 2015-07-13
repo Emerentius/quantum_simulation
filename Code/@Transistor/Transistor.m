@@ -20,12 +20,14 @@ classdef Transistor < handle
         eps_ox
         lambda
         lambda_ds
+        current
     end
     
     properties (Access = protected)
         %% private flags to not unnecessarily recalculate data 
         is_self_consistent = false
         phi_changed_since_DOS_calculation
+        current_is_up_to_date = false
     end
     %%
     methods
@@ -156,6 +158,13 @@ classdef Transistor < handle
             else
                 n_steps = length(obj.energy_range) - 1; % inefficient, but robust. Should be changed regardless.
             end
+        end
+        
+        function current_ = get.current(obj)
+            if ~obj.current_is_up_to_date
+                obj.compute_carrier_density_and_DOS;
+            end
+            current_ = obj.current;
         end
     end
 end

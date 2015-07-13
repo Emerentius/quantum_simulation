@@ -33,7 +33,11 @@ function compute_carrier_density_and_DOS(obj)
     density = zeros(n_ges, 1);
     
     DOS = zeros(n_energy_steps+1, n_ges);
-    obj.transmission_probability = zeros(n_energy_steps+1,1);
+    transmission_probability = zeros(n_energy_steps+1,1);
+
+    sigma_source = sparse(1,1,          1, n_ges, n_ges);
+    sigma_drain  = sparse(n_ges, n_ges, 1, n_ges, n_ges);
+    
     %% precalculate
     minus_H = - spdiags([ -t*ones(n_ges,1), ... % upper diag
                           phi + 2*t,        ... % middle diag
@@ -41,6 +45,7 @@ function compute_carrier_density_and_DOS(obj)
                 ], ...
                 [1,0,-1], n_ges, n_ges);
     %%
+    current = 0;
     for Ej=[energies; 1:length(energies)]
         E = Ej(1);
         jj = Ej(2);
@@ -49,14 +54,12 @@ function compute_carrier_density_and_DOS(obj)
         
         E_i_eta = (E+1i*eta) * speye(n_ges);
 
-        % sparse matrices of size n_ges by n_ges, one element
-        sigma_source = sparse(1,1,          -t*exp(1i*ka_source), n_ges, n_ges);
-        sigma_drain  = sparse(n_ges, n_ges, -t*exp(1i*ka_drain ), n_ges, n_ges);
+        % sparse matrices of size n_ges x n_ges, one element
+        sigma_source(1, 1)       = -t*exp(1i*ka_source);
+        sigma_drain(n_ges,n_ges) = -t*exp(1i*ka_drain );
         
         % invert
         G = ( minus_H + E_i_eta - sigma_source - sigma_drain) \ eye(n_ges);
-        %% Save transmission probability
-        obj.transmission_probability(jj) = 4*t^2*sin(ka_source)*sin(ka_drain)*abs(G(1,n_ges))^2;
         %%
         % DOS == A/2pi
         DOS_source = t*sin(ka_source)/pi * abs(G(:, 1    ).^2) / a;
@@ -85,11 +88,21 @@ function compute_carrier_density_and_DOS(obj)
             DOS_source*fermi_source + ...
             DOS_drain *fermi_drain    ...
         );
-
+        
+        %% Save transmission probability
+        transmission_probability(jj) = 4*t^2*sin(ka_source)*sin(ka_drain)*abs(G(1,n_ges))^2;
+        %% compute current
+        current = current + dE*e* 2*e/h * ...
+                transmission_probability(jj) * ...
+                (fermi_source-fermi_drain); 
     end
     %% Note: multiply with a to counteract the squaring, divide by area for 3D
     % TODO: factor out 1D and 3D density
     density = density /obj.area_ch;
     %%
+    obj.transmission_probability = transmission_probability;
+    
+    obj.current = current;
+    obj.current_is_up_to_date = true;
     obj.set_carrier_density_and_DOS(density, DOS);
 end

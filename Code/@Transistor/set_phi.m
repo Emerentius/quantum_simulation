@@ -23,4 +23,5 @@ function set_phi(obj, phi)
     obj.drain.phi  = phi(obj.drain.range);
     
     obj.phi_changed_since_DOS_calculation = true;
+    obj.current_is_up_to_date = false;
 end
