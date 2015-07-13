@@ -40,11 +40,11 @@ for Vgjj = [V_g_range; 1:length(V_g_range)]
     disp(iterations);
     iterations_counter = iterations_counter + iterations;
     I(jj) = tr.current;
-    if V_g >= 0.5 
-        tr.plot_phi(phi_fig)
-    end
+    %if V_g >= 0.5 
+    tr.plot_phi(phi_fig)
+    %end
 end
-disp(iterations_counter);
+disp(['total iterations:' num2str(iterations_counter)]);
 figure
 plot(V_g_range, I);
 xlabel('V_g [V]');
