@@ -4,7 +4,7 @@
 function density = carrier_density(obj)
     if obj.phi_changed_since_DOS_calculation
        % phi and DOS inconsistent, recalculate carrier_density
-       obj.compute_carrier_density_and_DOS();
+       obj.compute_DOS_and_related;
     end
     density = [obj.source.carrier_density; ...
                obj.gate.carrier_density;   ...

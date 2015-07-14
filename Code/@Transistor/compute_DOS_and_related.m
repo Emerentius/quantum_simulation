@@ -1,12 +1,5 @@
-% TODO: - look at dimensions, where is the 1e9 (nm) factor coming in?
-%       - dimensions of DOS in particular
-%% Carrier Density
-function compute_carrier_density_and_DOS(obj)
-    %% avoid recalculating
-    if (~obj.phi_changed_since_DOS_calculation)
-         return
-    end
-
+%% Compute and save DOS, carrier density, transmission probability and current
+function compute_DOS_and_related(obj)
     initialise_constants
     %% natural constant for fermi function inlining
     k_B_eV = 8.6173324e-5;

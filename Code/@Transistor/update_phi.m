@@ -2,9 +2,10 @@
 % returns the delta phi, saves new phi
 
 % Todo: take n_steps
-function delta_phi = update_phi(obj, newton_step_size)
+function delta_phi = update_phi(obj)
     initialise_constants;
     %% Extract some relevant data
+    newton_step_size = obj.newton_step_size;
     eps = obj.eps_ch;
     phi = obj.phi;
     

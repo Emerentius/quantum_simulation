@@ -16,13 +16,13 @@ tr = Transistor(0.5, ...    % V_ds
                 'eps_ox',    eps_sio2,     ...
                 'l_ds',      '7 lambda',   ...
                 'E_g',       1,            ... % eV
-                'lambda_ds', '1 lambda', ... % multiple of lambda_ch
-                'geometry',  'nano-wire');
-
+                'lambda_ds', '1 lambda',   ... % multiple of lambda_ch
+                'geometry',  'nano-wire',  ...
+                'newton_step_size', 0.3,   ...   
+                'self_consistency_limit', 1e-3); % eV
+            
 % step size of newton raphson
-NEWTON_STEP_SIZE = 0.3; % of full delta phi
-LIMIT_DELTA_PHI = 1e-3;
-MAX_ITERATIONS = 200;
+MAX_ITERATIONS = 15;
 
 %%
 V_g_range = 0.0: 0.05 : 0.7;
@@ -33,7 +33,7 @@ for Vgjj = [V_g_range; 1:length(V_g_range)]
     V_g = Vgjj(1);
     jj = Vgjj(2);
     tr.set_V_g(V_g);
-    iterations = tr.make_self_consistent(NEWTON_STEP_SIZE, LIMIT_DELTA_PHI, MAX_ITERATIONS);
+    iterations = tr.make_self_consistent(MAX_ITERATIONS);
     disp(iterations);
     iterations_counter = iterations_counter + iterations;
     I(jj) = tr.current;

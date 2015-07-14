@@ -1,32 +1,35 @@
 classdef Transistor < handle
+    % Default material properties for silicon
     properties (GetAccess = public, SetAccess = protected)
         source
         gate
         drain
         a
-        V_ds
-        V_g % gate voltage
-        geometry
-        T
-        m
+        V_ds % drain-source voltage
+        V_g  % gate voltage
+        geometry = 'single gate'
+        T = 300 % K
+        m = 0.2 * 9.10938291e-31 % 0.2 * m_e
         n_energy_steps
-        dE
-        E_f
-        E_g
+        dE = 5e-4; % eV, mutually exclusive with n_energy_steps, checks are done in constructor
+        E_f = 0.1 % == 0.1eV above conduction band in source
+        E_g = 1.14
         transmission_probability
         d_ch
         d_ox
-        eps_ch
-        eps_ox
+        eps_ch = 11.2
+        eps_ox = 3.9
         lambda
-        lambda_ds
+        lambda_ds = '1 lambda' % in lambda_ch
         current
+        newton_step_size = 0.3 % part of delta phi that is taken in one newton-step
+        self_consistency_limit = 1e-3 % eV, self-consistency reached when max(abs(delta_phi)) <= self_consistency_limit
     end
     
     properties (Access = protected)
         %% private flags to not unnecessarily recalculate data 
         is_self_consistent = false
-        phi_changed_since_DOS_calculation
+        phi_changed_since_DOS_calculation = true
         current_is_up_to_date = false
     end
     %%
@@ -34,19 +37,9 @@ classdef Transistor < handle
         %% Constructor
         function obj = Transistor(V_ds, V_g, d_ch, d_ox, a, varargin)
             initialise_constants;            
-            %%%%%%%%%%%% default values %%%%%%%%%%%%%%%%%%%
-            % Silizium
-            E_f_def = 0.1;
-            E_g_def = 1;
-            eps_ox_def = eps_sio2;
-            eps_ch_def = eps_si;
-            m_def = m_e; % note: this isn't silicon
-            lambda_ds_def = '1 lambda'; % in lambda_ch
+            %%%%%%%%%%%% Further default values %%%%%%%%%%%%
             l_ch_def = '5 lambda';
             l_ds_def = '5 lambda'; % in lambda_ds
-            T_def = 300; % K
-            geometry_def = 'single gate';
-            expected_geometry = {'single gate','double gate','triple gate', 'tri-gate', 'nano-wire', 'nanowire'};
             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
             %% parse input
@@ -70,27 +63,35 @@ classdef Transistor < handle
             % n_energy_steps
             % exclusivity is checked down below
             addOptional(p, 'dE', [], is_empty_or_numeric_scalar);
-            addOptional(p, 'E_g', E_g_def, is_numeric_scalar);
-            addOptional(p, 'E_f', E_f_def, is_numeric_scalar);
-            addOptional(p, 'eps_ox', eps_ox_def, is_numeric_scalar);
-            addOptional(p, 'eps_ch', eps_ch_def, is_numeric_scalar);
-            addOptional(p, 'geometry', geometry_def, @(x) any(validatestring(x,expected_geometry)) );
-            addOptional(p, 'lambda_ds', lambda_ds_def, is_numeric_scalar_or_string); 
+            addOptional(p, 'E_g', obj.E_g, is_numeric_scalar);
+            addOptional(p, 'E_f', obj.E_f, is_numeric_scalar);
+            addOptional(p, 'eps_ox', obj.eps_ox, is_numeric_scalar);
+            addOptional(p, 'eps_ch', obj.eps_ch, is_numeric_scalar);
+            addOptional(p, 'geometry', obj.geometry); % validation in lambda_by_geometry
+            addOptional(p, 'lambda_ds', obj.lambda_ds, is_numeric_scalar_or_string); 
             addOptional(p, 'l_ch', l_ch_def, is_numeric_scalar_or_string);
             addOptional(p, 'l_ds', l_ds_def, is_numeric_scalar_or_string);
-            addOptional(p, 'm', m_def, is_numeric_scalar);
-            addOptional(p, 'T', T_def, is_numeric_scalar);
+            addOptional(p, 'm', obj.m, is_numeric_scalar);
+            addOptional(p, 'T', obj.T, is_numeric_scalar);
+            addOptional(p, 'newton_step_size', obj.newton_step_size, is_numeric_scalar);
+            addOptional(p, 'self_consistency_limit', obj.self_consistency_limit, is_numeric_scalar);
             
             % parse input as described
             parse(p, V_ds, V_g,  d_ch, d_ox, a, varargin{:});
             
             % check exclusivity of dE and n_energy_steps
             if ~isempty(p.Results.dE) && ~isempty(p.Results.n_energy_steps)
+                % Two values specified => error due to mutual exclusiveness
                 error('n_energy_steps and dE are mutually exclusive parameters');
-            end
-
+            elseif ~isempty(p.Results.dE) % n_energy_steps empty
+                obj.dE = p.Results.dE; % overwrite default with given dE
+            elseif ~isempty(p.Results.n_energy_steps) % dE empty
+                obj.dE = []; % delete default value
+                obj.n_energy_steps = p.Results.n_energy_steps;
+            end 
+            % else both empty => keep default
+            
             %% read some input into variables that are needed multiple times
-            E_f = p.Results.E_f;
             eps_ox = p.Results.eps_ox;
             eps_ch = p.Results.eps_ch;
             geometry = p.Results.geometry;
@@ -127,18 +128,19 @@ classdef Transistor < handle
             obj.eps_ch = eps_ch;
             obj.eps_ox = eps_ox;
             obj.E_g = p.Results.E_g;
-            obj.E_f = E_f;
+            obj.E_f = p.Results.E_f;
             obj.V_ds = V_ds;
             obj.V_g = V_g;
             obj.m = p.Results.m;
             obj.a = a;
-            obj.n_energy_steps = p.Results.n_energy_steps; % exclusivity already checked
-            obj.dE = p.Results.dE;
             obj.geometry = geometry;
             obj.T = p.Results.T;
+            obj.newton_step_size = p.Results.newton_step_size;
+            obj.self_consistency_limit = p.Results.self_consistency_limit;
             
             %% Calculate some data from the above
-            obj.initialise_phi_carrier_density_DOS();
+            obj.set_phi(obj.poisson());
+            %obj.initialise_phi_carrier_density_DOS();
         end
         
         function dE_ = get.dE(obj)
@@ -162,7 +164,7 @@ classdef Transistor < handle
         
         function current_ = get.current(obj)
             if ~obj.current_is_up_to_date
-                obj.compute_carrier_density_and_DOS;
+                obj.compute_DOS_and_related;
             end
             current_ = obj.current;
         end
