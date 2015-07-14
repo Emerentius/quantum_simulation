@@ -12,20 +12,31 @@ function atoms_array = all_lattice_points_inside_and_around(n,m, padding_x, padd
     P = nanotube.P(n,m);
     
     corners = [ [0;0], C, C+P, P ];
-        
-    xmin = min(corners(1,:)) - padding_x * d_x;
-    xmax = max(corners(1,:)) + padding_x * d_x;
-    ymin = min(corners(2,:)) - padding_y * d_y;
-    ymax = max(corners(2,:)) + padding_y * d_y;
+    [xmin, xmin_idx] = min(corners(1,:));% - [padding_x * d_x, 0];
+    [xmax, xmax_idx] = max(corners(1,:));% + [padding_x * d_x, 0];
+    [ymin, ymin_idx] = min(corners(2,:));% - [padding_y * d_y, 0];
+    [ymax, xmax_idx] = max(corners(2,:));% + [padding_y * d_y, 0];
+    
+    xmin = xmin - padding_x * d_x;
+    xmax = xmax + padding_x * d_x;
+    ymin = ymin - padding_y * d_y;
+    ymax = ymax + padding_y * d_y;
     
     % lattice corrections
     % [xmin; ymin] may lie outside the lattice
     % causing mismatch between nanotube vectors and lattice
-    % this is the case when n+m is uneven
-    if mod(n+m,2) ~= 0
-        xmin = xmin - d_x/2;
-        xmax = xmax - d_x/2;
+    x_of_ymin = corners(1, ymin_idx);
+    d_x_offsets = 2*(x_of_ymin - xmin)/d_x;
+    delta_d_x_offsets = mod(d_x_offsets, 2);
+    is_not_zero = @(x) x > 1e-2 || x < -1e-2;
+    if is_not_zero(delta_d_x_offsets)
+       xmin = xmin - d_x/2;
+       xmax = xmax - d_x/2;
     end
+    %if mod(n+m,2) ~= 0
+    %    xmin = xmin - d_x/2;
+    %    xmax = xmax - d_x/2;
+    %end
     
     %% Generate lattice  
     % create array

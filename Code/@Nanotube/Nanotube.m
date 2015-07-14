@@ -33,7 +33,7 @@ classdef Nanotube < handle
             obj.components2num = containers.Map('KeyType', 'char', 'ValueType', 'double'); % string 'n m' to double
      
             counter = 1;
-            for atom_components = nanotube.all_lattice_points_inside_and_around_components(n,m);
+            for atom_components = nanotube.all_lattice_points_inside_and_around_components(n,m, 1,0); % padding in x for lattice correction wiggle room
                 if obj.is_inside_unit_cell_components(atom_components)
                     obj.lattice_points(:, counter) = nanotube.components_vec2vec_vec(atom_components);
                     obj.lattice_points_components(:, counter) = atom_components;
