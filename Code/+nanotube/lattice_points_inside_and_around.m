@@ -1,5 +1,8 @@
 % Return row array containing all 2D-vectors to every lattice point inside
-% the unit cell and a few surrounding ones
+% the unit cell and a few surrounding ones.
+% Optionally, the amount of surrounding atoms can be increased in units of
+% d_x and d_y (see nanotube.initialise_constants) by specifying paddings
+% (integers)
 function atoms_array = all_lattice_points_inside_and_around(n,m, padding_x, padding_y)
     if ~exist('padding_x', 'var') && ~exist('padding_y', 'var')
         padding_x = 0;
@@ -26,10 +29,8 @@ function atoms_array = all_lattice_points_inside_and_around(n,m, padding_x, padd
     % [xmin; ymin] may lie outside the lattice
     % causing mismatch between nanotube vectors and lattice
     x_of_ymin = corners(1, ymin_idx);
-    d_x_offsets = 2*(x_of_ymin - xmin)/d_x;
-    delta_d_x_offsets = mod(d_x_offsets, 2);
-    is_not_zero = @(x) x > 1e-2 || x < -1e-2;
-    if is_not_zero(delta_d_x_offsets)
+    d_x_offsets = int32(2*(x_of_ymin - xmin)/d_x);
+    if mod(d_x_offsets, int32(2)) ~= 0
        xmin = xmin - d_x/2;
        xmax = xmax - d_x/2;
     end

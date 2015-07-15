@@ -38,7 +38,7 @@ function fig = plot_lattice(n,m)
     %  plot lines to all neighbours
 
     % testing array function
-    all_vecs = nanotube.all_lattice_points_inside_and_around(n,m, 2,1);
+    all_vecs = nanotube.lattice_points_inside_and_around(n,m, 2,1);
     right_sublattice = all_vecs(:, 2:2:length(all_vecs));
     for v = right_sublattice
         %while all(v >= [xmin-d_x;ymin-d_y]) && all(v <= [xmax+d_x;ymax+d_y])

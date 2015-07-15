@@ -1,12 +1,13 @@
-% Experimental
-% 1 direction
+% Checks along one direction, which is given by n*a1+m*a2
+% Takes component vecs of type [n; m; is_on_left_sublattice]
 function is_inside = is_inside_unit_cell_partial_components(components_vec, n,m)
+    vec_3n = 3*int32(components_vec(1));
+    vec_3m = 3*int32(components_vec(2));
     if components_vec(3) % => is on left sublattice
-        vec_3n = 3*int32(components_vec(1)) - 1;
-        vec_3m = 3*int32(components_vec(2)) - 1;
-    else
-        vec_3n = 3*int32(components_vec(1));
-        vec_3m = 3*int32(components_vec(2));
+        % a_cc_right_to_left = -1/3 (a1+a2)
+        % => *3 to keep integers
+        vec_3n = vec_3n - 1;
+        vec_3m = vec_3m - 1;
     end
     
     n = int32(n);
@@ -16,5 +17,7 @@ function is_inside = is_inside_unit_cell_partial_components(components_vec, n,m)
     range_start = 0;
     range_end   = 3*2*(n^2 + m^2 + n*m);
     
+    % atoms on lower edge are part of cell, atoms on far edge are not
+    % atoms on corners bordering far edge are not either
 	is_inside = (range_start <= num) && (num < range_end);
 end

@@ -6,6 +6,6 @@ function lattice_components = all_lattice_point_components_inside_and_around(n,m
         padding_y = 0;
     end
 
-    all_points = nanotube.all_lattice_points_inside_and_around(n,m, padding_x, padding_y);
+    all_points = nanotube.lattice_points_inside_and_around(n,m, padding_x, padding_y);
     lattice_components = nanotube.vec_vec2components_vec(all_points);
 end

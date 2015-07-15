@@ -1,4 +1,4 @@
-% Compute components n_p, m_p of the translational vector P
+% Components n_p, m_p of the translational vector P
 function [n_p, m_p] = P_components(n,m)
     % negative from script
     % P points up, if C points to the right
