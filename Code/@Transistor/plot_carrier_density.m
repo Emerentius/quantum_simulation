@@ -1,4 +1,4 @@
-function plot_carrier_density(obj, fig)
+function fig = plot_carrier_density(obj, fig)
     if ~exist('fig', 'var')
         fig = figure;
     else

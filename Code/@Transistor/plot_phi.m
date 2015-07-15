@@ -1,5 +1,5 @@
 %% plot methods
-function plot_phi(obj, fig)
+function fig = plot_phi(obj, fig)
     if ~exist('fig', 'var')
         fig = figure;
     else

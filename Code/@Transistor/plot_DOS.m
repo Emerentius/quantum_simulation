@@ -1,4 +1,4 @@
-function plot_DOS(obj, fig)
+function fig = plot_DOS(obj, fig)
     if ~exist('fig', 'var')
         fig = figure;
     else

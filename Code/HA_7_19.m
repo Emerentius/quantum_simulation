@@ -18,10 +18,10 @@ is_metallic_2 = nanotube.is_metallic(n2,m2)
 % C,P orthogonal => reciprocal lattice orthogonal
 k_orth_max_1 = 2*pi/norm(C1) / 2;
 k_par_max_1 = 2*pi/norm(P1) / 2;
-disp(['k_||_max_1 = (' num2str(-k_orth_max_1) '..' num2str(k_orth_max_1) ')/nm']);
-disp(['k_|__max_1 = (' num2str(-k_par_max_1) '..' num2str(k_par_max_1) ')/nm']);
+disp(['k_|_max_1 = (' num2str(-k_orth_max_1) '..' num2str(k_orth_max_1) ')/nm']);
+disp(['k_||__max_1 = (' num2str(-k_par_max_1) '..' num2str(k_par_max_1) ')/nm']);
 
 k_orth_max_2 = 2*pi/norm(C2) / 2;
 k_par_max_2 = 2*pi/norm(P2) / 2;
-disp(['k_||_max_2 = (' num2str(-k_orth_max_2) '..' num2str(k_orth_max_2) ')/nm']);
-disp(['k_|__max_2 = (' num2str(-k_par_max_2) '..' num2str(k_par_max_2) ')/nm']);
+disp(['k_|_max_2 = (' num2str(-k_orth_max_2) '..' num2str(k_orth_max_2) ')/nm']);
+disp(['k_||__max_2 = (' num2str(-k_par_max_2) '..' num2str(k_par_max_2) ')/nm']);

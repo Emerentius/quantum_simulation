@@ -1,4 +1,4 @@
-function plot_transmission_probability(obj, fig)
+function fig = plot_transmission_probability(obj, fig)
     if ~exist('fig', 'var')
         fig = figure;
     else

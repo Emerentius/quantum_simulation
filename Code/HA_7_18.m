@@ -18,22 +18,20 @@ tr = Transistor(0.0, ...    % V_ds
                 'l_ds',      '7 lambda',   ...
                 'E_g',       1,            ... % eV
                 'lambda_ds', '1 lambda', ... % multiple of lambda_ch
-                'geometry',  'nano-wire');
-
-% step size of newton raphson
-NEWTON_STEP_SIZE = 0.3; % of full delta phi
-LIMIT_DELTA_PHI = 1e-3;
-MAX_ITERATIONS = 200;
+                'geometry',  'nano-wire', ...
+                'newton_step_size', 0.3, ...
+                'self_consistency_limit', 1e-3);
 
 %%
-disp(tr.make_self_consistent(NEWTON_STEP_SIZE, LIMIT_DELTA_PHI, MAX_ITERATIONS));
+disp(tr.make_self_consistent);
 charge00 = tr.charge_gate;
-tr.plot_phi;
+phi_fig = tr.plot_phi;
+hold on;
 
 tr.set_V_ds(0.5);
-disp(tr.make_self_consistent(NEWTON_STEP_SIZE, LIMIT_DELTA_PHI, MAX_ITERATIONS));
+disp(tr.make_self_consistent);
 charge05 = tr.charge_gate;
-tr.plot_phi
+tr.plot_phi(phi_fig);
 
 charge_fig = figure;
 hold on;

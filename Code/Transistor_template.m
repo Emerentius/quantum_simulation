@@ -1,5 +1,6 @@
 %% This shows an instantiation of a transistor with every possible variable defined
 %  Leaving nothing to default values
+initialise_constants;
 
 tr = Transistor(0.5, ...    % V_ds
                 0.0, ...    % V_g

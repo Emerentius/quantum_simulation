@@ -23,7 +23,6 @@ tr = Transistor(0.5, ...    % V_ds
             
 % step size of newton raphson
 MAX_ITERATIONS = 15;
-
 %%
 V_g_range = 0.0: 0.05 : 0.7;
 phi_fig = figure;
@@ -38,7 +37,7 @@ for Vgjj = [V_g_range; 1:length(V_g_range)]
     iterations_counter = iterations_counter + iterations;
     I(jj) = tr.current;
     %if V_g >= 0.5 
-    tr.plot_phi(phi_fig)
+    tr.plot_phi(phi_fig);
     %end
 end
 disp(['total iterations:' num2str(iterations_counter)]);

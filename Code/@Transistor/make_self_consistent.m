@@ -11,17 +11,17 @@ function iterations = make_self_consistent(obj, max_iterations)
         end
         
         %% check limit for an entire pass of a phi update
-        phi = obj.phi; % save old phi
-        obj.update_phi;
-        delta_phi = phi - obj.phi; % old - new
-        if max(abs(delta_phi)) <= limit
-            obj.is_self_consistent = true;
-        end
+%         phi = obj.phi; % save old phi
+%         obj.update_phi;
+%         delta_phi = phi - obj.phi; % old - new
+%         if max(abs(delta_phi)) <= limit
+%             obj.is_self_consistent = true;
+%         end
         
         %% check limit for one newton step
-        %if max(abs(obj.update_phi)) <= limit
-        %    obj.is_self_consistent = true;
-        %end
+        if max(abs(obj.update_phi)) <= limit
+           obj.is_self_consistent = true;
+        end
         %%
         iterations = iterations + 1;
     end
