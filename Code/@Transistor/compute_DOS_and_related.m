@@ -15,10 +15,10 @@ function compute_DOS_and_related(obj)
     E_f_drain = obj.E_f_drain;
     %%
 
-    % Integrationsgrenzen
+    % integration limits
     dE = obj.dE;
     energies = obj.energy_range;
-    eta = 0.001*dE; % kann beliebig klein
+    eta = 1e-8; %0.001*dE; % kann beliebig klein
 
     t = obj.t();
 
@@ -39,6 +39,12 @@ function compute_DOS_and_related(obj)
                 [1,0,-1], n_ges, n_ges);
     %%
     current = 0;
+
+    % first and last vec of unit matrix
+    unit_vec_1n = zeros(n_ges, 2);
+    unit_vec_1n(1,1)      = 1;
+    unit_vec_1n(end, end) = 1;
+
     for Ej=[energies; 1:length(energies)]
         E = Ej(1);
         jj = Ej(2);
@@ -52,11 +58,13 @@ function compute_DOS_and_related(obj)
         sigma_drain(n_ges,n_ges) = -t*exp(1i*ka_drain );
         
         % invert
-        G = ( minus_H + E_i_eta - sigma_source - sigma_drain) \ eye(n_ges);
+        % G = [G_1, G_2, ..., G_n]
+        % compute vectors G_1 and G_n only. Both in one go for efficiency.
+        G_1n = (minus_H + E_i_eta - sigma_source - sigma_drain) \ unit_vec_1n;
         %%
         % DOS == A/2pi
-        DOS_source = t*sin(ka_source)/pi * abs(G(:, 1    ).^2) / a;
-        DOS_drain  = t*sin(ka_drain )/pi * abs(G(:, n_ges).^2) / a;
+        DOS_source = t*sin(ka_source)/pi * abs(G_1n(:,1).^2) / a;
+        DOS_drain  = t*sin(ka_drain )/pi * abs(G_1n(:,end).^2) / a;
         
         %% Save DOS
         DOS(jj,:) = DOS_source.' + DOS_drain.';
@@ -83,7 +91,8 @@ function compute_DOS_and_related(obj)
         );
         
         %% Save transmission probability
-        transmission_probability(jj) = 4*t^2*sin(ka_source)*sin(ka_drain)*abs(G(1,n_ges))^2;
+        % G_1n(1, end) = G(1,n_ges)
+        transmission_probability(jj) = 4*t^2*sin(ka_source)*sin(ka_drain)*abs(G_1n(1,end))^2;
         %% compute current
         current = current + dE*e* 2*e/h * ...
                 transmission_probability(jj) * ...
