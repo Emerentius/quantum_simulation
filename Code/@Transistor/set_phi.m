@@ -3,7 +3,7 @@ function set_phi(obj, phi)
     % TODO: make dent correction limit adjustable
     LIMIT = 0.03;
     [min_phi_source, min_idx_source] = min(phi(obj.source.range));
-    [min_phi_drain, min_idx_drain] = min(phi(obj.drain.range));
+    [min_phi_drain,  min_idx_drain]  = min(phi(obj.drain.range));
     max_phi_gate = max(phi(obj.gate.range));
     
     if phi(1) - min_phi_source > LIMIT && ...
