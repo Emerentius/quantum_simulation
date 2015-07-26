@@ -25,7 +25,7 @@ classdef Nanotube < handle
         
     methods 
         function obj = Nanotube(n,m, k_steps)
-            if ~exist('n_k_steps', 'var')
+            if ~exist('k_steps', 'var')
                 k_steps = 1000;
             end
             
@@ -75,10 +75,17 @@ classdef Nanotube < handle
             k_counter = 1;
 
             [H_prev, H, H_next] = obj.hamiltonians;
-            for k = k_range
+            % calculate one half of energy bands
+            n_before_middle = int32(floor(n_k_steps/2));
+            
+            for k = k_range(1: ceil(n_k_steps/2))
                 E(:,k_counter) = eig( H + H_next*exp(1i*k*a) + H_prev*exp(-1i*k*a) );
                 k_counter = k_counter + 1;
             end
+            
+            % get other half by mirroring
+            E(:, end - n_before_middle + 1 : end) = fliplr( E(:, 1 : n_before_middle) );
+            
             %% Save data
             obj.energy_bands = E;
             obj.k_range = k_range;
