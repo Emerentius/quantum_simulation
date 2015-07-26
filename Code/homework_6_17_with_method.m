@@ -24,25 +24,7 @@ tr = Transistor(0.5, ...    % V_ds
 % step size of newton raphson
 MAX_ITERATIONS = 15;
 %%
-V_g_range = 0.0: 0.05 : 0.7;
-phi_fig = figure;
-hold on;
-iterations_counter = 0;
-for Vgjj = [V_g_range; 1:length(V_g_range)]
-    V_g = Vgjj(1);
-    jj = Vgjj(2);
-    tr.set_V_g(V_g);
-    iterations = tr.make_self_consistent(MAX_ITERATIONS);
-    disp(iterations);
-    iterations_counter = iterations_counter + iterations;
-    I(jj) = tr.current; %#ok<SAGROW>
-    %if V_g >= 0.5 
-    tr.plot_phi(phi_fig);
-    %end
-end
-disp(['total iterations:' num2str(iterations_counter)]);
-figure
-plot(V_g_range, I);
-xlabel('V_g [V]');
-ylabel('I [A]');
-set(gca, 'yscale', 'log');
+V_g_range = 0.0 : 0.05 : 0.7;
+[fig, current, subthr_slope, iterations] = tr.plot_transfer_characteristic(V_g_range);
+iterations
+subthr_slope% = helper.subthreshold_slope(V_g_range, current)

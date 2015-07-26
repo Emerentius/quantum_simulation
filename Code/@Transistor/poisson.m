@@ -18,6 +18,7 @@ function phi = poisson(obj)
     M(1,2)            = 2/a^2;
     M(n_ges, n_ges-1) = 2/a^2;
     
+    % vec = e/eps * rho + phi_offsets, assuming rho = 0 everywhere
     % signs inverted compared to transparencies, lecture 1, pg 35
     % seems to me like they are wrong, one minus gets lost from previous
     % slide

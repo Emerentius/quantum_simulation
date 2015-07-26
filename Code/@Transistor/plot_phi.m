@@ -6,9 +6,8 @@ function fig = plot_phi(obj, fig)
         figure(fig);
     end
     
-    initialise_constants;
     set(fig, 'name', 'Phi');
-    p = plot([1:obj.n_ges]*obj.a, obj.phi);
+    p = plot(obj.position_range, obj.phi);
     xlabel('Position [nm]');
     ylabel('E [eV]');
 end

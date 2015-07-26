@@ -27,6 +27,9 @@ classdef Transistor < handle
         current
         newton_step_size = 0.3 % part of delta phi that is taken in one newton-step
         self_consistency_limit = 1e-3 % eV, self-consistency reached when max(abs(delta_phi)) <= self_consistency_limit
+        coupling_left = 1
+        coupling_right = 1
+        eta = 1e-8
     end
     
     properties (Access = protected)
@@ -81,6 +84,9 @@ classdef Transistor < handle
             addOptional(p, 'dopant_type', 'n', @(x) all(lower(x) == 'p') || all(lower(x) == 'n'));
             addOptional(p, 'E_max', [], is_numeric_scalar);
             addOptional(p, 'E_min', [], is_numeric_scalar);
+            addOptional(p, 'coupling_left', obj.coupling_left, is_numeric_scalar);
+            addOptional(p, 'coupling_right', obj.coupling_right, is_numeric_scalar);
+            addOptional(p, 'eta', obj.eta, is_numeric_scalar);
             
             % parse input as described
             parse(p, V_ds, V_g,  d_ch, d_ox, a, varargin{:});
@@ -157,9 +163,13 @@ classdef Transistor < handle
             obj.T = p.Results.T;
             obj.newton_step_size = p.Results.newton_step_size;
             obj.self_consistency_limit = p.Results.self_consistency_limit;
+            obj.coupling_left  = p.Results.coupling_left;
+            obj.coupling_right = p.Results.coupling_right;
+            obj.eta = p.Results.eta;
             
             %% Calculate some data from the above
             obj.set_phi(obj.poisson());
+            obj.compute_DOS_and_related;
             %obj.initialise_phi_carrier_density_DOS();
         end
         

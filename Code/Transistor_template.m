@@ -3,7 +3,7 @@
 initialise_constants;
 
 tr = Transistor(0.5, ...    % V_ds
-                0.0, ...    % V_g
+                0.7, ...    % V_g
                 3,   ...    % d_ch
                 3,   ...    % d_ox
                 0.5, ...    % a
@@ -19,4 +19,11 @@ tr = Transistor(0.5, ...    % V_ds
                 'lambda_ds', '1 lambda',   ... % multiple of lambda_ch
                 'geometry',  'nano-wire',  ...
                 'newton_step_size', 0.3,   ...   
-                'self_consistency_limit', 1e-3); % eV
+                'self_consistency_limit', 1e-3, ... % eV
+                'dopant_type', 'n', ...
+                ... %'E_min', 1, ...    % leave out for automatic, adaptive energy
+                ... %'E_max', -0.5, ... % depending on E_f, V_ds, and phi
+                'coupling_left', 1, ...
+                'coupling_right', 1, ...
+                'eta', 1e-8 ...
+                );

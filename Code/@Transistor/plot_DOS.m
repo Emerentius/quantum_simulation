@@ -5,12 +5,7 @@ function fig = plot_DOS(obj, fig)
         figure(fig);
     end
     
-    initialise_constants;
-    
-    phi = obj.phi;
-    x_range = [1:obj.n_ges]*obj.a;
-    
-    p = pcolor(x_range, obj.energy_range, obj.DOS);
+    p = pcolor(obj.position_range, obj.energy_range, obj.DOS);
     %p = surf(x_range, E_range, obj.DOS);
     set(fig, 'name', 'DOS');
     view(2); % X-Y
