@@ -10,6 +10,8 @@ classdef Transistor < handle
         geometry = 'single gate'
         T = 300 % K
         m = 0.2 * 9.10938291e-31 % 0.2 * m_e
+        E_min = []
+        E_max = []
         n_energy_steps
         dE = 5e-4; % eV, mutually exclusive with n_energy_steps, checks are done in constructor
         E_f = 0.1 % == 0.1eV above conduction band in source
@@ -21,6 +23,7 @@ classdef Transistor < handle
         eps_ox = 3.9
         lambda
         lambda_ds = '1 lambda' % in lambda_ch
+        carrier_charge_in_e = -1
         current
         newton_step_size = 0.3 % part of delta phi that is taken in one newton-step
         self_consistency_limit = 1e-3 % eV, self-consistency reached when max(abs(delta_phi)) <= self_consistency_limit
@@ -75,6 +78,9 @@ classdef Transistor < handle
             addOptional(p, 'T', obj.T, is_numeric_scalar);
             addOptional(p, 'newton_step_size', obj.newton_step_size, is_numeric_scalar);
             addOptional(p, 'self_consistency_limit', obj.self_consistency_limit, is_numeric_scalar);
+            addOptional(p, 'dopant_type', 'n', @(x) all(lower(x) == 'p') || all(lower(x) == 'n'));
+            addOptional(p, 'E_max', [], is_numeric_scalar);
+            addOptional(p, 'E_min', [], is_numeric_scalar);
             
             % parse input as described
             parse(p, V_ds, V_g,  d_ch, d_ox, a, varargin{:});
@@ -118,6 +124,18 @@ classdef Transistor < handle
             range_drain   = {n_ds+n_ch+1 , 2*n_ds+n_ch };
                         
             %% Initialize properties
+            
+            % p or n-type
+            switch(lower(p.Results.dopant_type))
+                case {'n'}
+                    obj.carrier_charge_in_e = -1;
+                case {'p'}
+                    obj.carrier_charge_in_e = 1;
+                otherwise
+                    error('shit bug in dopant_type');
+            end
+            %
+            
             obj.source = Region(range_source{:});
             obj.gate   = Region(range_gate{:});
             obj.drain  = Region(range_drain{:});
@@ -129,6 +147,8 @@ classdef Transistor < handle
             obj.eps_ox = eps_ox;
             obj.E_g = p.Results.E_g;
             obj.E_f = p.Results.E_f;
+            obj.E_max = p.Results.E_max;
+            obj.E_min = p.Results.E_min;
             obj.V_ds = V_ds;
             obj.V_g = V_g;
             obj.m = p.Results.m;
@@ -142,6 +162,33 @@ classdef Transistor < handle
             obj.set_phi(obj.poisson());
             %obj.initialise_phi_carrier_density_DOS();
         end
+        
+        function E_max_ = get.E_max(obj)
+            if ~isempty('obj.E_max')
+                E_max_ = obj.E_max;
+            else
+                % in eV already!!
+                k_B = 8.6173324e-5;
+                E_max_ = max([obj.E_f_source, obj.source.phi(1), max(obj.gate.phi), obj.E_f_drain, obj.drain.phi(end)]);
+                if sign(obj.carrier_charge_in_e) == -1
+                    E_max_ = E_max_ + 5*k_B*obj.T;
+                end
+            end
+        end
+     
+        function E_min_ = get.E_min(obj)
+            if ~isempty('obj.E_min')
+                E_min_ = obj.E_min;
+            else
+                k_B = 8.6173324e-5;
+                E_min_ = min([obj.E_f_source, obj.source.phi(1), min(obj.gate.phi), obj.E_f_drain, obj.drain.phi(end)]);
+                if sign(obj.carrier_charge_in_e) == 1
+                    E_min_ = E_min_ - 5*k_B*obj.T;
+                end
+            end
+        end
+        
+            
         
         function dE_ = get.dE(obj)
             if ~isempty(obj.dE)
