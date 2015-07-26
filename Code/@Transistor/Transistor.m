@@ -163,8 +163,14 @@ classdef Transistor < handle
             %obj.initialise_phi_carrier_density_DOS();
         end
         
+        % dependencies:
+        % E_f
+        % V_ds
+        % phi
+        % carrier_charge_in_e
+        % T
         function E_max_ = get.E_max(obj)
-            if ~isempty('obj.E_max')
+            if ~isempty(obj.E_max)
                 E_max_ = obj.E_max;
             else
                 % in eV already!!
@@ -177,7 +183,7 @@ classdef Transistor < handle
         end
      
         function E_min_ = get.E_min(obj)
-            if ~isempty('obj.E_min')
+            if ~isempty(obj.E_min)
                 E_min_ = obj.E_min;
             else
                 k_B = 8.6173324e-5;
