@@ -11,14 +11,20 @@ function compute_DOS_and_related(obj)
     phi = obj.phi(); % because obj.phi()(1) is impossible in matlab
     n_energy_steps = obj.n_energy_steps;
     
+    eta = obj.eta; %1e-8; %0.001*dE; % kann beliebig klein
+    
     E_f_source = obj.E_f_source;
     E_f_drain = obj.E_f_drain;
+    
+    coupling_left = obj.coupling_left;
+    coupling_right = obj.coupling_right;
+    
+    fermi_function = @(E,E_f) 1/(exp( (E-E_f)/k_B_eV/T ) + 1);        
     %%
 
     % integration limits
     dE = obj.dE;
     energies = obj.energy_range;
-    eta = 1e-8; %0.001*dE; % kann beliebig klein
 
     t = obj.t();
 
@@ -54,8 +60,8 @@ function compute_DOS_and_related(obj)
         E_i_eta = (E+1i*eta) * speye(n_ges);
 
         % sparse matrices of size n_ges x n_ges, one element
-        sigma_source(1, 1)       = -t*exp(1i*ka_source);
-        sigma_drain(n_ges,n_ges) = -t*exp(1i*ka_drain );
+        sigma_source(1, 1)       = coupling_left  * -t*exp(1i*ka_source); %#ok<SPRIX>
+        sigma_drain(n_ges,n_ges) = coupling_right * -t*exp(1i*ka_drain ); %#ok<SPRIX>
         
         % invert
         % G = [G_1, G_2, ..., G_n]
@@ -63,40 +69,32 @@ function compute_DOS_and_related(obj)
         G_1n = (minus_H + E_i_eta - sigma_source - sigma_drain) \ unit_vec_1n;
         %%
         % DOS == A/2pi
-        DOS_source = t*sin(ka_source)/pi * abs(G_1n(:,1).^2) / a;
-        DOS_drain  = t*sin(ka_drain )/pi * abs(G_1n(:,end).^2) / a;
+        % 2 for spin degeneracy
+        DOS_source = 2*t*sin(ka_source)/pi * abs(G_1n(:,1).^2) / a;
+        DOS_drain  = 2*t*sin(ka_drain )/pi * abs(G_1n(:,end).^2) / a;
         
         %% Save DOS
         DOS(jj,:) = DOS_source.' + DOS_drain.';
-        %% inlined fermi function for carrier density integration
-        % external function calls are very expensive
-        fermi_source = 1/(exp( (E-E_f_source)/k_B_eV/T ) + 1);
-        fermi_drain  = 1/(exp( (E-E_f_drain)/k_B_eV/T ) + 1);
-        if T == 0 
-            % this is necessary, because the calculation above breaks down
-            % for T = 0 and returns NaN.
-            if (E-E_f_source) == 0 
-                fermi_source = 0.5;
-            end
+        
+        fermi_source = fermi_function(E, E_f_source);
+        fermi_drain = fermi_function(E, E_f_drain);
 
-            if (E-E_f_drain) == 0
-                fermi_drain = 0.5;
-            end
-        end
         %% integrate carrier density
-        % 2 for spin degeneracy
-        density  = density + 2*dE*( ...
+        % spin degeneracy in DOS_source and _drain
+        density  = density + dE*( ...
             DOS_source*fermi_source + ...
             DOS_drain *fermi_drain    ...
         );
-        
+
         %% Save transmission probability
         % G_1n(1, end) = G(1,n_ges)
         transmission_probability(jj) = 4*t^2*sin(ka_source)*sin(ka_drain)*abs(G_1n(1,end))^2;
         %% compute current
+        %  dE*e = dE in J
+        %  2 for spin degeneracy
         current = current + dE*e* 2*e/h * ...
                 transmission_probability(jj) * ...
-                (fermi_source-fermi_drain); 
+                (fermi_source-fermi_drain);
     end
     %% Note: multiply with a to counteract the squaring, divide by area for 3D
     % TODO: factor out 1D and 3D density
