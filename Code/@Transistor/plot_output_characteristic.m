@@ -1,4 +1,4 @@
-function [fig, iterations] = plot_output_characteristic(obj, V_ds_range, fig)
+function [fig, current, iterations] = plot_output_characteristic(obj, V_ds_range, fig)
     if ~exist('fig', 'var');
         fig = figure;
     else

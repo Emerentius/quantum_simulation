@@ -1,4 +1,4 @@
-function [fig, iterations] = plot_transfer_characteristic(obj, V_g_range, fig)
+function [fig, current, iterations] = plot_transfer_characteristic(obj, V_g_range, fig)
     if ~exist('fig', 'var');
         fig = figure;
     else
