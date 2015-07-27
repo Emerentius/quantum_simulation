@@ -28,10 +28,14 @@ charge00 = tr.charge_gate;
 phi_fig = tr.plot_phi;
 hold on;
 
+tr.area_carrier_density_gate / helper.nm2_to_m2(1) % SI
+
 tr.set_V_ds(0.5);
 disp(tr.make_self_consistent);
 charge05 = tr.charge_gate;
 tr.plot_phi(phi_fig);
+
+tr.area_carrier_density_gate / helper.nm2_to_m2(1) % SI
 
 charge_fig = figure;
 hold on;
