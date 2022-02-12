@@ -7,3 +7,4 @@ Leo/*
 *.pdf
 *.fig
 *.asv
+__pycache__
