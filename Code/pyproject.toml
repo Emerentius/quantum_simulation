@@ -5,11 +5,14 @@ description = ""
 authors = ["Emerentius <emerentius@arcor.de>"]
 
 [tool.poetry.dependencies]
+# The upper version limit is because PySide2 imposes one for versions
+# that aren't even released yet. A REALLY bad idea on their part.
 python = "^3.8, <3.11"
 numpy = "^1.22.2"
 attrs = "^21.4.0"
 matplotlib = "^3.5.1"
 PySide2 = "^5.15.2"
+scipy = "^1.8.0"
 
 [tool.poetry.dev-dependencies]
 mypy = "^0.931"

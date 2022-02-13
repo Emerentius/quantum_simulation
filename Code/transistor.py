@@ -1,6 +1,8 @@
 from __future__ import annotations
 import math
 from typing import Iterable, Optional
+import scipy.sparse as sp
+import scipy.sparse.linalg
 import numpy as np
 import numpy.typing
 
@@ -191,7 +193,7 @@ class Transistor:
         n_ges = self.n_ges
         ##
 
-        side_diag = np.ones(n_ges - 1) / a**2
+        side_diag = np.ones(n_ges) / a**2
         middle_diag = (
             self.regioned_vector(
                 -1 / self.lambda_ds**2,
@@ -201,12 +203,30 @@ class Transistor:
             - 2 / a**2
         )
 
+        top_diag = side_diag.reshape(1, -1).copy()
+        top_diag[0, 1] = 2 / a**2
+        bottom_diag = side_diag.reshape(1, -1)
+        bottom_diag[0, -2] = 2 / a**2
         # TODO: are the diagonal indices right?
         #       Are the matrices all of the same size?
-        M = np.diag(side_diag, 1) + np.diag(middle_diag) + np.diag(side_diag, -1)
+        M = sp.spdiags(
+            np.concatenate(
+                [
+                    top_diag,
+                    middle_diag.reshape(1, -1),
+                    bottom_diag,
+                ]
+            ),
+            [1, 0, -1],
+            n_ges,
+            n_ges,
+        )
         # M = spdiags([side_diag, middle_diag, side_diag], [1,0,-1], n_ges, n_ges)
-        M[1, 2] = 2 / a**2
-        M[n_ges - 1, n_ges - 2] = 2 / a**2
+        # can't modify sparse matrix afterwards, at least not the
+        # default type of sparse matrix.
+        # Modifying the diagonals before construction instead.
+        # M[0, 1] = 2 / a**2
+        # M[-1, -2] = 2 / a**2
         # M(1,2)            = 2/a^2
         # M(n_ges, n_ges-1) = 2/a^2
 
@@ -220,7 +240,7 @@ class Transistor:
             -self.phi_ds / self.lambda_ds**2,
         )
 
-        result = np.linalg.inv(M) @ vec
+        result = sp.linalg.spsolve(M, vec)
         return result
 
     def regioned_vector(
@@ -312,15 +332,36 @@ class Transistor:
 
         # sigma_source = sparse(1,1,          1, n_ges, n_ges)
         # sigma_drain  = sparse(n_ges, n_ges, 1, n_ges, n_ges)
-        sigma_source = np.zeros((n_ges, n_ges), dtype=np.complex64)
-        sigma_source[0, 0] = 1
-        sigma_drain = np.zeros((n_ges, n_ges), dtype=np.complex64)
-        sigma_drain[-1, -1] = 1
+
+        if True:
+            sigma_source = sp.csc_array((n_ges, n_ges), dtype=np.complex64)
+            sigma_source[0, 0] = 1
+            sigma_drain = sp.csc_array((n_ges, n_ges), dtype=np.complex64)
+            sigma_drain[-1, -1] = 1
+        else:
+            sigma_source = np.zeros((n_ges, n_ges), dtype=np.complex64)
+            sigma_source[0, 0] = 1
+            sigma_drain = np.zeros((n_ges, n_ges), dtype=np.complex64)
+            sigma_drain[-1, -1] = 1
 
         ## precalculate
-        side_diag = -t * np.ones(n_ges - 1)
+        side_diag = -t * np.ones(n_ges)
+
+        diags = np.concatenate(
+            [
+                side_diag.reshape(1, -1),
+                (phi + 2 * t).reshape(1, -1),
+                side_diag.reshape(1, -1),
+            ],
+        )
+
         minus_H = -(
-            np.diag(side_diag, 1) + np.diag(phi + 2 * t) + np.diag(side_diag, -1)
+            sp.spdiags(
+                diags,
+                np.array([1, 0, -1]),
+                n_ges,
+                n_ges,
+            )
         )
         # minus_H = - spdiags([ -t*ones(n_ges,1), ... # upper diag
         #                     phi + 2*t,        ... # middle diag
@@ -342,7 +383,7 @@ class Transistor:
             ka_source = np.arccos(0j + 1 + (-E + phi[0]) / 2 / t).real
             ka_drain = np.arccos(0j + 1 + (-E + phi[-1]) / 2 / t).real
 
-            E_i_eta = (E + 1j * eta) * np.identity(n_ges)
+            E_i_eta = (E + 1j * eta) * sp.identity(n_ges, dtype=np.complex64)
 
             # sparse matrices of size n_ges x n_ges, one element
             sigma_source[0, 0] = (
@@ -355,9 +396,12 @@ class Transistor:
             # invert
             # G = [G_1, G_2, ..., G_n]
             # compute vectors G_1 and G_n only. Both in one go for efficiency.
-            G_1n = (
-                np.linalg.inv(minus_H + E_i_eta - sigma_source - sigma_drain)
-                @ unit_vec_1n
+            # G_1n = (
+            #     sp.linalg.inv(minus_H + E_i_eta - sigma_source - sigma_drain)
+            #     @ unit_vec_1n
+            # )
+            G_1n = sp.linalg.spsolve(
+                minus_H + E_i_eta - sigma_source - sigma_drain, unit_vec_1n
             )
             ##
             # DOS == A/2pi
